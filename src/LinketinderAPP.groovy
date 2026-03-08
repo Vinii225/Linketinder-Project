@@ -10,11 +10,13 @@ class LinketinderAPP {
         Scanner keyboard = new Scanner(System.in)
         int opcao = 0
 
-        while (opcao != 3) {
+        while (opcao != 5) {
             println "\nLinketinder"
             println "1. Listar candidatos"
             println "2. Listar empresas"
-            println "3. Sair"
+            println "3. Adicionar candidato"
+            println "4. Adicionar empresa"
+            println "5. Sair"
             print "Escolha uma opção: "
             String entrada = keyboard.next()
 
@@ -31,6 +33,30 @@ class LinketinderAPP {
                         empresas.each { println "Empresa: ${it.nome} | Busca: ${it.competencias}" }
                         break
                     case 3:
+                        println "Cadastro de Candidato"
+                        print "Nome: "
+                        String nome = keyboard.next()
+
+                        print "Email: ";
+                        String email = keyboard.next()
+
+                        def novoC = new Candidato(nome, email, "PB", "58000", "Dev", ["Groovy"], "123", 20)
+                        adicionarCandidato(novoC)
+                        println "Candidato cadastrado!"
+                        break
+                    case 4:
+                        println "Cadastro de Empresa"
+                        print "Nome: "
+                        String nome = keyboard.next()
+
+                        print "Email: "
+                        String email = keyboard.next()
+
+                        def novaE = new Empresa(nome, email, "PB", "58000", "Suporte", ["BD"], "123", "Brasil")
+                        adicionarEmpresa(novaE)
+                        println "Empresa cadastrada!"
+                        break
+                    case 5:
                         println "Saindo..."
                         break
                     default:
@@ -56,5 +82,13 @@ class LinketinderAPP {
         empresas << new Empresa("Norfil", "jobs@norfil.com", "PB", "58081", "Fiação", ["Engenharia", "SQL"], "00.003", "Brasil")
         empresas << new Empresa("Copobras", "contato@copobras.com", "PB", "58082", "Embalagens", ["Design", "Vendas"], "00.004", "Brasil")
         empresas << new Empresa("TechJampa", "jampa@tech.com", "PB", "58000", "TI", ["Groovy", "Spring"], "00.005", "Brasil")
+    }
+
+    static void adicionarCandidato(Candidato candidato) {
+        candidatos << candidato
+    }
+
+    static void adicionarEmpresa(Empresa empresa) {
+        empresas << empresa
     }
 }
