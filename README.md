@@ -1,60 +1,42 @@
-# Linketinder - MVP 
+# Linketinder - MVP (Versão 2.0 com TDD)
 
-O **Linketinder** é um sistema de contratação simplificado
-que une o conceito de competências do LinkedIn com a praticidade
-de "match" do Tinder. Este projeto é um MVP (Minimum Viable Product).
+O Linketinder é um sistema de contratação simplificado que une o conceito de competências do LinkedIn com a praticidade de "match" do Tinder. Esta versão evoluiu de um protótipo estático para um sistema interativo com validação de dados via testes unitários.
 
 **Desenvolvedor:** Vinícius Ares
 
 ---
 
-## Tecnologias e Conceitos Utilizados
+## Novidades desta Versão
 
-O projeto foi totalmente implementado em **Groovy**, utilizando os seguintes conceitos de programação:
-
-* **POO (Programação Orientada a Objetos):** Uso de Herança, Classes e Interfaces.
-* **Encapsulamento:** Organização de atributos em classes específicas.
-* **Coleções (Collections):** Uso de `Lists` dinâmicas para gerenciar candidatos e empresas.
-* **Estruturas de Dados:** Implementação de herança entre `Perfil`, `Candidato` e `Empresa`.
-* **Groovy Power:** Uso de strings interpoladas, closures (`each`) e validação de tipos dinâmica (`isInteger`).
+* **Cadastro Interativo**: Implementação de menu para inserção de novos candidatos e empresas em tempo real via terminal.
+* **Testes Unitários (TDD)**: Criação de suíte de testes utilizando JUnit 5 para validar a inserção de novos elementos nas listas.
+* **Métodos de Persistência**: Adição dos métodos adicionarCandidato e adicionarEmpresa para manipulação segura das coleções.
 
 ---
 
-## Requisitos do MVP
+## Tecnologias e Conceitos Utilizados
 
-- Cadastro prévio de no mínimo 5 candidatos.
-- Cadastro prévio de no mínimo 5 empresas (focadas na região de João Pessoa - PB).
-- Atributos completos (Nome, E-mail, CPF/CNPJ, idade, Estado, CEP e descrição).
-- Sistema de competências (Array de skills) para ambos os perfis.
-- Menu interativo via terminal.
-- Validação de entrada de dados (evitando erros de digitação).
+O projeto utiliza o ecossistema Groovy e as melhores práticas de engenharia de software:
+
+* **POO (Programação Orientada a Objetos)**: Uso de herança entre Perfil, Candidato e Empresa.
+* **TDD (Test-Driven Development)**: Desenvolvimento orientado a testes para garantir que cada unidade (cadastro) funcione de forma independente.
+* **Coleções (Collections)**: Gerenciamento dinâmico de objetos em listas (ArrayList).
+* **Validação de Dados**: Uso de métodos como isInteger() para tratar entradas do usuário via Scanner.
 
 ---
 
 ## Estrutura do Projeto
 
-O código está organizado para facilitar a manutenção:
-
-
-
-* **LinketinderAPP.groovy**: Contém a classe principal, o método `main`, o menu de navegação e a lógica de pré-cadastro.
-* **Classes de Modelo**: As classes `Perfil`, `Candidato` e `Empresa` definem a estrutura de dados e herança do sistema.
+* **LinketinderAPP.groovy**: Contém a classe principal, o método main com o menu interativo, a lógica de pré-cadastro e os novos métodos de inserção.
+* **Perfis.groovy**: Define os modelos de dados Candidato e Empresa que herdam da classe Perfil.
+* **Testes.groovy**: Arquivo contendo os testes unitários automatizados para a etapa de cadastro.
 
 ---
 
-## Como Executar
+## Como Executar o App
 
-Para rodar o projeto, você precisa ter o **Groovy** instalado em sua máquina.
-
-1.  Clone o repositório:
-    ```bash
-    git clone [https://github.com/SEU_USUARIO/linketinder.git](https://github.com/SEU_USUARIO/linketinder.git)
-    ```
-2.  Navegue até a pasta do projeto:
-    ```bash
-    cd linketinder
-    ```
-3.  Execute o arquivo principal:
-    ```bash
-    groovy LinketinderAPP.groovy
-    ```
+1. Certifique-se de ter o Groovy instalado em sua máquina.
+2. Navegue até a pasta do projeto via terminal.
+3. Execute o comando:
+   ```bash
+   groovy LinketinderAPP.groovy
