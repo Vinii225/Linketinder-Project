@@ -40,3 +40,15 @@ O projeto utiliza o ecossistema Groovy e as melhores práticas de engenharia de 
 3. Execute o comando:
    ```bash
    groovy LinketinderAPP.groovy
+
+## Frontend TypeScript (Trilha TS)
+
+O arquivo fonte do frontend e `src/Frontend/app.ts`.
+Para executar no navegador, compile o TypeScript para JavaScript com:
+
+```bash
+tsc -p tsconfig.frontend.json
+```
+
+O arquivo gerado e `src/Frontend/dist/app.js`.
+As paginas HTML ja estao configuradas para carregar esse build.
