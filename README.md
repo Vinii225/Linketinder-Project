@@ -1,54 +1,64 @@
-# Linketinder - MVP (Versão 2.0 com TDD)
+# Linketinder
 
-O Linketinder é um sistema de contratação simplificado que une o conceito de competências do LinkedIn com a praticidade de "match" do Tinder. Esta versão evoluiu de um protótipo estático para um sistema interativo com validação de dados via testes unitários.
+Sistema de cadastro e visualizacao de candidatos e empresas, com duas frentes:
 
-**Desenvolvedor:** Vinícius Ares
+- Backend em Groovy (modo terminal)
+- Frontend em TypeScript + HTML/CSS (modo navegador)
 
----
+**Desenvolvedor:** Vinicius Ares
 
-## Novidades desta Versão
+## Visao Geral
 
-* **Cadastro Interativo**: Implementação de menu para inserção de novos candidatos e empresas em tempo real via terminal.
-* **Testes Unitários (TDD)**: Criação de suíte de testes utilizando JUnit 5 para validar a inserção de novos elementos nas listas.
-* **Métodos de Persistência**: Adição dos métodos adicionarCandidato e adicionarEmpresa para manipulação segura das coleções.
+O projeto combina conceitos de vagas e competencias em um fluxo simples de cadastro.
 
----
+- No terminal (Groovy), ha menu interativo para listar e adicionar candidatos/empresas.
+- No frontend (TypeScript), os dados sao salvos no `localStorage` e renderizados nas paginas.
 
-## Tecnologias e Conceitos Utilizados
+## Tecnologias
 
-O projeto utiliza o ecossistema Groovy e as melhores práticas de engenharia de software:
+- Groovy 5
+- JUnit 5 (testes)
+- TypeScript
+- HTML/CSS
 
-* **POO (Programação Orientada a Objetos)**: Uso de herança entre Perfil, Candidato e Empresa.
-* **TDD (Test-Driven Development)**: Desenvolvimento orientado a testes para garantir que cada unidade (cadastro) funcione de forma independente.
-* **Coleções (Collections)**: Gerenciamento dinâmico de objetos em listas (ArrayList).
-* **Validação de Dados**: Uso de métodos como isInteger() para tratar entradas do usuário via Scanner.
+## Estrutura Principal
 
----
+- `src/LinketinderAPP.groovy`: ponto de entrada do app em terminal.
+- `src/Perfis.groovy`: classes de dominio (`Perfil`, `Candidato`, `Empresa`).
+- `src/Testes.groovy`: testes unitarios da logica de insercao.
+- `src/Frontend/app.ts`: logica principal do frontend (cadastro, listagem e grafico).
+- `src/Frontend/dist/app.js`: build gerado do TypeScript.
 
-## Estrutura do Projeto
+## Como Executar (Groovy)
 
-* **LinketinderAPP.groovy**: Contém a classe principal, o método main com o menu interativo, a lógica de pré-cadastro e os novos métodos de inserção.
-* **Perfis.groovy**: Define os modelos de dados Candidato e Empresa que herdam da classe Perfil.
-* **Testes.groovy**: Arquivo contendo os testes unitários automatizados para a etapa de cadastro.
+1. Tenha o Groovy instalado (ou configurado na IDE).
+2. Na raiz do projeto, execute:
 
----
+```bash
+groovy src/LinketinderAPP.groovy
+```
 
-## Como Executar o App
+## Frontend TypeScript
 
-1. Certifique-se de ter o Groovy instalado em sua máquina.
-2. Navegue até a pasta do projeto via terminal.
-3. Execute o comando:
-   ```bash
-   groovy LinketinderAPP.groovy
-
-## Frontend TypeScript (Trilha TS)
-
-O arquivo fonte do frontend e `src/Frontend/app.ts`.
-Para executar no navegador, compile o TypeScript para JavaScript com:
+Compile o frontend com:
 
 ```bash
 tsc -p tsconfig.frontend.json
 ```
 
-O arquivo gerado e `src/Frontend/dist/app.js`.
-As paginas HTML ja estao configuradas para carregar esse build.
+Arquivo gerado:
+
+- `src/Frontend/dist/app.js`
+
+As paginas HTML em `src/Frontend/` ja estao configuradas para carregar esse build.
+
+## Observacoes Importantes
+
+- A listagem de vagas da tela de candidato e dinamica: nao ha vagas fixas no HTML.
+- As vagas exibidas sao apenas as cadastradas durante o uso e armazenadas em `localStorage`.
+- Se quiser "zerar" os dados exibidos no frontend, limpe o `localStorage` no navegador.
+
+## Testes
+
+O projeto possui testes unitarios em `src/Testes.groovy` para validar insercao de candidatos e empresas.
+Eles podem ser executados pela IDE (JUnit 5) com o classpath do projeto configurado.
