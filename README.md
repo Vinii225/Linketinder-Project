@@ -52,6 +52,43 @@ Arquivo gerado:
 
 As paginas HTML em `src/Frontend/` ja estao configuradas para carregar esse build.
 
+## Validacoes Regex no Frontend
+
+Os formularios de cadastro do frontend possuem validacoes com Regex em `src/Frontend/app.ts`.
+Quando um campo e invalido, o envio e bloqueado e uma mensagem de erro e exibida via `alert`.
+
+### Candidato (`form-candidato`)
+
+- `Nome Completo` (`c-nome`): exige nome e sobrenome, com letras e separadores comuns.
+- `E-mail` (`c-email`): exige formato valido de e-mail.
+- `Suas Skills` (`c-skills`): exige tags separadas por virgula.
+
+Exemplo valido:
+
+- Nome: `Ana Souza`
+- E-mail: `ana.souza@email.com`
+- Skills: `Java, Groovy, SQL`
+
+### Empresa (`form-empresa`)
+
+- `Nome da Empresa` (`e-nome`): valida nome empresarial com letras/numeros.
+- `CNPJ` (`e-cnpj`): exige formato `00.000.000/0001-00`.
+- `E-mail Corporativo` (`e-email`): exige formato valido de e-mail.
+- `Descricao da Vaga` (`e-vagas`): aceita entre 5 e 120 caracteres validos.
+- `Competencias Desejadas` (`e-skills`): exige tags separadas por virgula.
+
+Exemplo valido:
+
+- Nome: `Tech Solutions LTDA`
+- CNPJ: `12.345.678/0001-90`
+- E-mail: `rh@techsolutions.com`
+- Vaga: `Desenvolvedor Java Pleno`
+- Competencias: `Java, SQL, Spring`
+
+### Observacao
+
+Campos citados na atividade (CPF, telefone, LinkedIn, CEP etc.) nao foram adicionados porque ainda nao existem nos formularios atuais do projeto.
+
 ## Observacoes Importantes
 
 - A listagem de vagas da tela de candidato e dinamica: nao ha vagas fixas no HTML.
