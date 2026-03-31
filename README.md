@@ -108,6 +108,7 @@ A estrutura relacional completa pode ser visualizada no diagrama abaixo:
 ![Print-DER](Print-DER.png)
 
 Este diagrama ilustra:
+
 - Os atributos de cada entidade (Candidato, Empresa e Perfil)
 - As relações entre elas
 - Como os dados são organizados no banco de dados
