@@ -95,6 +95,23 @@ Campos citados na atividade (CPF, telefone, LinkedIn, CEP etc.) nao foram adicio
 - As vagas exibidas sao apenas as cadastradas durante o uso e armazenadas em `localStorage`.
 - Se quiser "zerar" os dados exibidos no frontend, limpe o `localStorage` no navegador.
 
+## Diagrama Entidade-Relacionamento (DER)
+
+O projeto utiliza um modelo de dados baseado em três entidades principais:
+
+- **Candidato**: representa um candidato em busca de oportunidades
+- **Empresa**: representa uma empresa com vagas em aberto
+- **Perfil**: classe base que armazena informações comuns (nome, email, competências)
+
+A estrutura relacional completa pode ser visualizada no diagrama abaixo:
+
+![Print-DER](Print-DER.png)
+
+Este diagrama ilustra:
+- Os atributos de cada entidade (Candidato, Empresa e Perfil)
+- As relações entre elas
+- Como os dados são organizados no banco de dados
+
 ## Testes
 
 O projeto possui testes unitarios em `src/Testes.groovy` para validar insercao de candidatos e empresas.
