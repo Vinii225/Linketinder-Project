@@ -1,0 +1,20 @@
+plugins {
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.apache.groovy:groovy-all:4.0.0'
+    implementation 'org.postgresql:postgresql:42.7.2'
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['src']
+        }
+    }
+}
