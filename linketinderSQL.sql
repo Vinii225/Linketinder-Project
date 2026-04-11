@@ -41,7 +41,7 @@ CREATE TABLE candidato_competencia (
     PRIMARY KEY (id_candidato, id_competencia)
 );
 
-CREATE TABLE matches (
+CREATE TABLE match (
     id_candidato INT REFERENCES candidato(id_candidato) ON DELETE CASCADE,
     id_empresa INT REFERENCES empresa(id_empresa) ON DELETE CASCADE,
     boolean_match BOOLEAN DEFAULT FALSE,
@@ -81,7 +81,7 @@ INSERT INTO candidato_competencia (id_candidato, id_competencia) VALUES
 (4, 7), (4, 1),
 (5, 2), (5, 6);
 
-INSERT INTO matches (id_candidato, id_empresa, boolean_match) VALUES 
+INSERT INTO match (id_candidato, id_empresa, boolean_match) VALUES 
 (1, 1, TRUE),  
 (3, 4, TRUE),  
 (5, 3, FALSE); 
