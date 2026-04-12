@@ -12,8 +12,8 @@ Estrutura simplificada em módulos:
 - `src/Frontend/types.ts`: interfaces e regex compartilhados
 - `src/Frontend/validacao.ts`: funções de validação
 - `src/Frontend/storage.ts`: carregar/salvar em localStorage
-- `src/Frontend/Candidato/Cadastro/cadastro.ts`: lógica de cadastro de candidato
-- `src/Frontend/Empresa/Cadastro/cadastro.ts`: lógica de cadastro de empresa + renderização de vagas e gráfico
+- `src/Frontend/groovy.model.Candidato/Cadastro/cadastro.ts`: lógica de cadastro de candidato
+- `src/Frontend/groovy.model.Empresa/Cadastro/cadastro.ts`: lógica de cadastro de empresa + renderização de vagas e gráfico
 
 ## Compilar Frontend
 
@@ -25,28 +25,38 @@ Gera arquivos em `src/Frontend/dist/`.
 
 ## Atributos Cadastro Frontend
 
-**Candidato**: nome, data_nasc, email, cpf, cep, descricao, competencias
-**Empresa**: nome, cnpj, email, descricao, cep, competencias
+**groovy.model.Candidato**: nome, data_nasc, email, cpf, cep, descricao, competencias
+**groovy.model.Empresa**: nome, cnpj, email, descricao, cep, competencias
 
 Validações de regex em `src/Frontend/types.ts` e `src/Frontend/validacao.ts`.
 
 ## Armazenamento
 
 Dados salvos em localStorage:
+
 - `candidatos`: array de CandidatoCadastro
 - `empresas`: array de EmpresaCadastro
 
 ## Backend JDBC (Groovy)
 
 Camadas:
-- `model`: entidades de dominio
-- `data`: DAO com JDBC
-- `service`: regras de negocio
-- `LinketinderAPP`: menu de CLI
+
+- `src/groovy/Main.groovy`: ponto de entrada (apenas inicia o menu)
+- `src/groovy/model`: entidades de dominio (`Candidato`, `Empresa`, `Vaga`, `Competencia`)
+- `src/groovy/model/data`: conexao JDBC e DAOs com CRUD
+- `src/groovy/service`: regras de negocio e validacoes
+- `src/groovy/service/menu`: menu principal e submenus por entidade
+
+CRUDs implementados:
+
+- Candidato (com relacionamento N:N com competencia via `candidato_competencia`)
+- Empresa
+- Competencia
+- Vaga (relacionamento 1:N de empresa para vaga)
 
 O arquivo `linketinderSQL.sql` contem o banco com 5 candidatos e 5 empresas pre-inseridos.
 
 ```bash
 ./gradlew test
-groovy src/LinketinderAPP.groovy
+groovy src/groovy/Main.groovy
 ```

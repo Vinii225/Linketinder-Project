@@ -15,7 +15,7 @@ formCandidato === null || formCandidato === void 0 ? void 0 : formCandidato.addE
     const skills = lerInput('c-skills');
     const novoCandidato = {
         nome: lerInput('c-nome'),
-        dataNasc: lerInput('c-data-nasc'),
+        dataNasc: lerInput('c-groovy.model.data-nasc'),
         email: lerInput('c-email'),
         cpf: lerInput('c-cpf'),
         cep: lerInput('c-cep'),

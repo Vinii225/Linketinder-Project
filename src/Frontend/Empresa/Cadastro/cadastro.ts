@@ -32,7 +32,7 @@ formEmpresa?.addEventListener('submit', (e) => {
 
     emps.push(novaEmpresa);
     salvarEmpresas(emps);
-    setAvisoEmpresa('Empresa cadastrada com sucesso!', 'sucesso');
+    setAvisoEmpresa('groovy.model.Empresa cadastrada com sucesso!', 'sucesso');
     setTimeout(() => {
         location.href = '../../index.html';
     }, 1200);

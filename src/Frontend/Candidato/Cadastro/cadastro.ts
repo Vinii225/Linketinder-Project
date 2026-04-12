@@ -17,7 +17,7 @@ formCandidato?.addEventListener('submit', (e) => {
     const skills = lerInput('c-skills');
     const novoCandidato: CandidatoCadastro = {
         nome: lerInput('c-nome'),
-        dataNasc: lerInput('c-data-nasc'),
+        dataNasc: lerInput('c-groovy.model.data-nasc'),
         email: lerInput('c-email'),
         cpf: lerInput('c-cpf'),
         cep: lerInput('c-cep'),
@@ -33,7 +33,7 @@ formCandidato?.addEventListener('submit', (e) => {
 
     cand.push(novoCandidato);
     salvarCandidatos(cand);
-    setAvisoCandidato('Candidato cadastrado com sucesso!', 'sucesso');
+    setAvisoCandidato('groovy.model.Candidato cadastrado com sucesso!', 'sucesso');
     setTimeout(() => {
         location.href = '../../index.html';
     }, 1200);

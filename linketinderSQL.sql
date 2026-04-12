@@ -56,7 +56,7 @@ INSERT INTO competencia (nome_competencia) VALUES
 INSERT INTO candidato (nome, sobrenome, data_nasc, email, cpf, pais, cep, descricao_pessoal, senha) VALUES
 ('Marcos', 'Oliveira', '1995-03-12', 'marcos.dev@email.com', '101.202.303-44', 'Brasil', '58000-100', 'Desenvolvedor Backend focado em microserviços.', 'p4_secret123'),
 ('Julia', 'Costa', '1998-07-25', 'julia.tech@email.com', '505.606.707-88', 'Brasil', '58015-200', 'Especialista em Frontend e UI/UX.', 'react_queen'),
-('Ricardo', 'Santos', '1990-11-05', 'ricardo.data@email.com', '909.101.202-33', 'Brasil', '58040-300', 'DBA com experiência em tunagem de queries.', 'sql_master90'),
+('Ricardo', 'Santos', '1990-11-05', 'ricardo.groovy.model.data@email.com', '909.101.202-33', 'Brasil', '58040-300', 'DBA com experiência em tunagem de queries.', 'sql_master90'),
 ('Beatriz', 'Lima', '2001-01-15', 'beatriz.cloud@email.com', '303.404.505-66', 'Brasil', '58050-400', 'Estudante de CC com foco em Cloud Computing.', 'aws_cloud_2026'),
 ('Fernando', 'Melo', '1993-09-20', 'fernando.full@email.com', '707.808.909-11', 'Brasil', '58060-500', 'Dev Fullstack entusiasta de Linux e Docker.', 'docker_linux_fan');
 

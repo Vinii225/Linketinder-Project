@@ -2,19 +2,27 @@ plugins {
     id 'groovy'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.apache.groovy:groovy-all:4.0.0'
+    implementation 'org.apache.groovy:groovy:5.0.0'
     implementation 'org.postgresql:postgresql:42.7.2'
 }
 
 sourceSets {
     main {
         groovy {
-            srcDirs = ['src']
+            srcDirs = ['src/groovy']
+            exclude '**/Testes/**'
+            exclude '**/Testes.groovy'
         }
     }
 }
