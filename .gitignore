@@ -25,9 +25,18 @@ bin/
 
 ### VS Code ###
 .vscode/
+.vscode-server/
 
 ### Mac OS ###
 .DS_Store
+
+### TypeScript/Node ###
+node_modules/
+*.tsbuildinfo
+*.js.map
+
+### OS ###
+Thumbs.db
 
 .gradle/
 build/

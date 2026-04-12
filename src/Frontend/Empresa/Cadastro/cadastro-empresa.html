@@ -11,6 +11,7 @@
     <a href="../../index.html" class="btn-voltar">Voltar</a>
 
     <h2>Cadastro de Empresa</h2>
+    <div id="cadastro-aviso" class="aviso" aria-live="polite"></div>
 
     <form id="form-empresa">
         <div class="campo">
@@ -29,8 +30,13 @@
         </div>
 
         <div class="campo">
-            <label for="e-vagas">Descrição da Vaga:</label>
-            <input type="text" id="e-vagas" placeholder="Ex: Desenvolvedor Java, Suporte" required>
+            <label for="e-descricao">Descricao da Empresa:</label>
+            <input type="text" id="e-descricao" placeholder="Resumo sobre a empresa" required>
+        </div>
+
+        <div class="campo">
+            <label for="e-cep">CEP:</label>
+            <input type="text" id="e-cep" placeholder="00000-000" required>
         </div>
 
         <div class="campo">
@@ -41,6 +47,9 @@
         <button type="submit" class="btn">Cadastrar Empresa</button>
     </form>
 </div>
-<script src="../../dist/app.js" defer></script>
+<script src="../../dist/types.js" defer></script>
+<script src="../../dist/validacao.js" defer></script>
+<script src="../../dist/storage.js" defer></script>
+<script src="../../dist/Empresa/Cadastro/cadastro.js" defer></script>
 </body>
 </html>

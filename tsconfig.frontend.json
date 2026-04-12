@@ -8,5 +8,5 @@
     "removeComments": false,
     "skipLibCheck": true
   },
-  "include": ["src/Frontend/app.ts"]
+  "include": ["src/Frontend/**/*.ts"]
 }

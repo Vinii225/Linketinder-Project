@@ -2,118 +2,51 @@
 
 Sistema de cadastro e visualizacao de candidatos e empresas, com duas frentes:
 
-- Backend em Groovy (modo terminal)
-- Frontend em TypeScript + HTML/CSS (modo navegador)
+- Backend em Groovy (terminal) com CRUD em JDBC
+- Frontend em TypeScript + HTML/CSS (navegador) modularizado
 
-**Desenvolvedor:** Vinicius Ares
+## Frontend Modularizado (TypeScript)
 
-## Visao Geral
+Estrutura simplificada em módulos:
 
-O projeto combina conceitos de vagas e competencias em um fluxo simples de cadastro.
+- `src/Frontend/types.ts`: interfaces e regex compartilhados
+- `src/Frontend/validacao.ts`: funções de validação
+- `src/Frontend/storage.ts`: carregar/salvar em localStorage
+- `src/Frontend/Candidato/Cadastro/cadastro.ts`: lógica de cadastro de candidato
+- `src/Frontend/Empresa/Cadastro/cadastro.ts`: lógica de cadastro de empresa + renderização de vagas e gráfico
 
-- No terminal (Groovy), ha menu interativo para listar e adicionar candidatos/empresas.
-- No frontend (TypeScript), os dados sao salvos no `localStorage` e renderizados nas paginas.
-
-## Tecnologias
-
-- Groovy 5
-- JUnit 5 (testes)
-- TypeScript
-- HTML/CSS
-
-## Estrutura Principal
-
-- `src/LinketinderAPP.groovy`: ponto de entrada do app em terminal.
-- `src/Perfis.groovy`: classes de dominio (`Perfil`, `Candidato`, `Empresa`).
-- `src/Testes.groovy`: testes unitarios da logica de insercao.
-- `src/Frontend/app.ts`: logica principal do frontend (cadastro, listagem e grafico).
-- `src/Frontend/dist/app.js`: build gerado do TypeScript.
-
-## Como Executar (Groovy)
-
-1. Tenha o Groovy instalado (ou configurado na IDE).
-2. Na raiz do projeto, execute:
-
-```bash
-groovy src/LinketinderAPP.groovy
-```
-
-## Frontend TypeScript
-
-Compile o frontend com:
+## Compilar Frontend
 
 ```bash
 tsc -p tsconfig.frontend.json
 ```
 
-Arquivo gerado:
+Gera arquivos em `src/Frontend/dist/`.
 
-- `src/Frontend/dist/app.js`
+## Atributos Cadastro Frontend
 
-As paginas HTML em `src/Frontend/` ja estao configuradas para carregar esse build.
+**Candidato**: nome, data_nasc, email, cpf, cep, descricao, competencias
+**Empresa**: nome, cnpj, email, descricao, cep, competencias
 
-## Validacoes Regex no Frontend
+Validações de regex em `src/Frontend/types.ts` e `src/Frontend/validacao.ts`.
 
-Os formularios de cadastro do frontend possuem validacoes com Regex em `src/Frontend/app.ts`.
-Quando um campo e invalido, o envio e bloqueado e uma mensagem de erro e exibida via `alert`.
+## Armazenamento
 
-### Candidato (`form-candidato`)
+Dados salvos em localStorage:
+- `candidatos`: array de CandidatoCadastro
+- `empresas`: array de EmpresaCadastro
 
-- `Nome Completo` (`c-nome`): exige nome e sobrenome, com letras e separadores comuns.
-- `E-mail` (`c-email`): exige formato valido de e-mail.
-- `Suas Skills` (`c-skills`): exige tags separadas por virgula.
+## Backend JDBC (Groovy)
 
-Exemplo valido:
+Camadas:
+- `model`: entidades de dominio
+- `data`: DAO com JDBC
+- `service`: regras de negocio
+- `LinketinderAPP`: menu de CLI
 
-- Nome: `Ana Souza`
-- E-mail: `ana.souza@email.com`
-- Skills: `Java, Groovy, SQL`
+O arquivo `linketinderSQL.sql` contem o banco com 5 candidatos e 5 empresas pre-inseridos.
 
-### Empresa (`form-empresa`)
-
-- `Nome da Empresa` (`e-nome`): valida nome empresarial com letras/numeros.
-- `CNPJ` (`e-cnpj`): exige formato `00.000.000/0001-00`.
-- `E-mail Corporativo` (`e-email`): exige formato valido de e-mail.
-- `Descricao da Vaga` (`e-vagas`): aceita entre 5 e 120 caracteres validos.
-- `Competencias Desejadas` (`e-skills`): exige tags separadas por virgula.
-
-Exemplo valido:
-
-- Nome: `Tech Solutions LTDA`
-- CNPJ: `12.345.678/0001-90`
-- E-mail: `rh@techsolutions.com`
-- Vaga: `Desenvolvedor Java Pleno`
-- Competencias: `Java, SQL, Spring`
-
-### Observacao
-
-Campos citados na atividade (CPF, telefone, LinkedIn, CEP etc.) nao foram adicionados porque ainda nao existem nos formularios atuais do projeto.
-
-## Observacoes Importantes
-
-- A listagem de vagas da tela de candidato e dinamica: nao ha vagas fixas no HTML.
-- As vagas exibidas sao apenas as cadastradas durante o uso e armazenadas em `localStorage`.
-- Se quiser "zerar" os dados exibidos no frontend, limpe o `localStorage` no navegador.
-
-## Diagrama Entidade-Relacionamento (DER)
-
-O projeto utiliza um modelo de dados baseado em três entidades principais:
-
-- **Candidato**: representa um candidato em busca de oportunidades
-- **Empresa**: representa uma empresa com vagas em aberto
-- **Perfil**: classe base que armazena informações comuns (nome, email, competências)
-
-A estrutura relacional completa pode ser visualizada no diagrama abaixo:
-
-![Print-DER](Print-DER.png)
-
-Este diagrama ilustra:
-
-- Os atributos de cada entidade (Candidato, Empresa e Perfil)
-- As relações entre elas
-- Como os dados são organizados no banco de dados
-
-## Testes
-
-O projeto possui testes unitarios em `src/Testes.groovy` para validar insercao de candidatos e empresas.
-Eles podem ser executados pela IDE (JUnit 5) com o classpath do projeto configurado.
+```bash
+./gradlew test
+groovy src/LinketinderAPP.groovy
+```
