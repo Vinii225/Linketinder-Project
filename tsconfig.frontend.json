@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2019",
     "module": "ES2020",
+    "moduleDetection": "legacy",
     "lib": ["DOM", "ES2019"],
     "rootDir": "src/Frontend",
     "outDir": "src/Frontend/dist",

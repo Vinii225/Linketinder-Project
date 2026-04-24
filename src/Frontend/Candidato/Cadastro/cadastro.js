@@ -1,25 +1,22 @@
+"use strict";
 /// <reference path="../../types.ts" />
 /// <reference path="../../validacao.ts" />
 /// <reference path="../../storage.ts" />
-
-function setAvisoCandidato(mensagem: string, tipo: 'erro' | 'sucesso') {
+function setAvisoCandidato(mensagem, tipo) {
     const aviso = document.getElementById('cadastro-aviso');
     if (!aviso) {
         alert(mensagem);
         return;
     }
-
     aviso.textContent = mensagem;
     aviso.className = `aviso ${tipo}`;
 }
-
-const formCandidato = document.getElementById('form-candidato') as HTMLFormElement;
+const formCandidato = document.getElementById('form-candidato');
 formCandidato?.addEventListener('submit', (e) => {
     e.preventDefault();
-    
     const cand = carregarCandidatos();
     const skills = lerInput('c-skills');
-    const novoCandidato: CandidatoCadastro = {
+    const novoCandidato = {
         nome: lerInput('c-nome'),
         dataNasc: lerInput('c-data-nasc'),
         email: lerInput('c-email'),
@@ -28,13 +25,11 @@ formCandidato?.addEventListener('submit', (e) => {
         descricao: lerInput('c-descricao'),
         competencias: parseTags(skills)
     };
-
     const erro = validarCandidato(novoCandidato, skills);
     if (erro) {
         setAvisoCandidato(`Usuario não cadastrado: ${erro}`, 'erro');
         return;
     }
-
     cand.push(novoCandidato);
     salvarCandidatos(cand);
     setAvisoCandidato('Candidato cadastrado com sucesso!', 'sucesso');

@@ -12,7 +12,7 @@ function setAvisoEmpresa(mensagem, tipo) {
     aviso.className = `aviso ${tipo}`;
 }
 const formEmpresa = document.getElementById('form-empresa');
-formEmpresa === null || formEmpresa === void 0 ? void 0 : formEmpresa.addEventListener('submit', (e) => {
+formEmpresa?.addEventListener('submit', (e) => {
     e.preventDefault();
     const emps = carregarEmpresas();
     const skills = lerInput('e-skills');

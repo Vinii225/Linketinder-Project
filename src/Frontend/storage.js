@@ -1,8 +1,7 @@
 "use strict";
 /// <reference path="./types.ts" />
 function lerInput(id) {
-    var _a;
-    return ((_a = document.getElementById(id)) === null || _a === void 0 ? void 0 : _a.value.trim()) || '';
+    return document.getElementById(id)?.value.trim() || '';
 }
 function salvarCandidatos(candidatos) {
     localStorage.setItem('candidatos', JSON.stringify(candidatos));

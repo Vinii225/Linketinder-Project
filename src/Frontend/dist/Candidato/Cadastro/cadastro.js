@@ -1,4 +1,7 @@
 "use strict";
+/// <reference path="../../types.ts" />
+/// <reference path="../../validacao.ts" />
+/// <reference path="../../storage.ts" />
 function setAvisoCandidato(mensagem, tipo) {
     const aviso = document.getElementById('cadastro-aviso');
     if (!aviso) {
@@ -15,7 +18,7 @@ formCandidato === null || formCandidato === void 0 ? void 0 : formCandidato.addE
     const skills = lerInput('c-skills');
     const novoCandidato = {
         nome: lerInput('c-nome'),
-        dataNasc: lerInput('c-groovy.model.data-nasc'),
+        dataNasc: lerInput('c-data-nasc'),
         email: lerInput('c-email'),
         cpf: lerInput('c-cpf'),
         cep: lerInput('c-cep'),

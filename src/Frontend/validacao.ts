@@ -1,3 +1,5 @@
+/// <reference path="./types.ts" />
+
 function validarCandidato(c: CandidatoCadastro, skillsBrutas: string): string | null {
     if (!regex.nome.test(c.nome)) return 'Nome invalido.';
     if (!c.dataNasc) return 'Data de nascimento obrigatoria.';

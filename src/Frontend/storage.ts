@@ -1,3 +1,5 @@
+/// <reference path="./types.ts" />
+
 function lerInput(id: string): string {
     return (document.getElementById(id) as HTMLInputElement)?.value.trim() || '';
 }

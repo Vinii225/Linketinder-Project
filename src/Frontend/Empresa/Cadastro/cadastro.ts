@@ -1,3 +1,7 @@
+/// <reference path="../../types.ts" />
+/// <reference path="../../validacao.ts" />
+/// <reference path="../../storage.ts" />
+
 function setAvisoEmpresa(mensagem: string, tipo: 'erro' | 'sucesso') {
     const aviso = document.getElementById('cadastro-aviso');
     if (!aviso) {
@@ -32,7 +36,7 @@ formEmpresa?.addEventListener('submit', (e) => {
 
     emps.push(novaEmpresa);
     salvarEmpresas(emps);
-    setAvisoEmpresa('groovy.model.Empresa cadastrada com sucesso!', 'sucesso');
+    setAvisoEmpresa('Empresa cadastrada com sucesso!', 'sucesso');
     setTimeout(() => {
         location.href = '../../index.html';
     }, 1200);
