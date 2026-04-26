@@ -12,10 +12,26 @@ import groovy.data.VagaDAO
 import java.time.LocalDate
 
 class LinketinderService {
-    private final CandidatoDAO candidatoDAO = new CandidatoDAO()
-    private final EmpresaDAO empresaDAO = new EmpresaDAO()
-    private final CompetenciaDAO competenciaDAO = new CompetenciaDAO()
-    private final VagaDAO vagaDAO = new VagaDAO()
+    private final CandidatoDAO candidatoDAO
+    private final EmpresaDAO empresaDAO
+    private final CompetenciaDAO competenciaDAO
+    private final VagaDAO vagaDAO
+
+    LinketinderService() {
+        this(new CandidatoDAO(), new EmpresaDAO(), new CompetenciaDAO(), new VagaDAO())
+    }
+
+    LinketinderService(
+        CandidatoDAO candidatoDAO,
+        EmpresaDAO empresaDAO,
+        CompetenciaDAO competenciaDAO,
+        VagaDAO vagaDAO
+    ) {
+        this.candidatoDAO = candidatoDAO
+        this.empresaDAO = empresaDAO
+        this.competenciaDAO = competenciaDAO
+        this.vagaDAO = vagaDAO
+    }
 
     Candidato cadastrarCandidato(Map dados) {
         Candidato candidato = new Candidato(
@@ -39,15 +55,17 @@ class LinketinderService {
             return false
         }
 
-        existente.nome = validarObrigatorio(dados.nome, "Nome")
-        existente.sobrenome = validarObrigatorio(dados.sobrenome, "Sobrenome")
-        existente.dataNasc = LocalDate.parse(validarObrigatorio(dados.dataNasc, "Data de nascimento"))
-        existente.email = validarObrigatorio(dados.email, "Email")
-        existente.cpf = validarObrigatorio(dados.cpf, "CPF")
-        existente.pais = validarObrigatorio(dados.pais, "Pais")
-        existente.cep = validarObrigatorio(dados.cep, "CEP")
-        existente.descricaoPessoal = validarObrigatorio(dados.descricaoPessoal, "Descricao pessoal")
-        existente.senha = validarObrigatorio(dados.senha, "Senha")
+        aplicarCamposObrigatorios(existente, dados, [
+            nome: "Nome",
+            sobrenome: "Sobrenome",
+            dataNasc: "Data de nascimento",
+            email: "Email",
+            cpf: "CPF",
+            pais: "Pais",
+            cep: "CEP",
+            descricaoPessoal: "Descricao pessoal",
+            senha: "Senha"
+        ])
         existente.competencias = normalizarCompetencias(dados.competencias)
 
         return candidatoDAO.update(existente)
@@ -80,13 +98,15 @@ class LinketinderService {
             return false
         }
 
-        existente.nomeEmpresa = validarObrigatorio(dados.nomeEmpresa, "Nome da empresa")
-        existente.cnpj = validarObrigatorio(dados.cnpj, "CNPJ")
-        existente.emailCorporativo = validarObrigatorio(dados.emailCorporativo, "Email corporativo")
-        existente.descricaoEmpresa = validarObrigatorio(dados.descricaoEmpresa, "Descricao da empresa")
-        existente.pais = validarObrigatorio(dados.pais, "Pais")
-        existente.cep = validarObrigatorio(dados.cep, "CEP")
-        existente.senha = validarObrigatorio(dados.senha, "Senha")
+        aplicarCamposObrigatorios(existente, dados, [
+            nomeEmpresa: "Nome da empresa",
+            cnpj: "CNPJ",
+            emailCorporativo: "Email corporativo",
+            descricaoEmpresa: "Descricao da empresa",
+            pais: "Pais",
+            cep: "CEP",
+            senha: "Senha"
+        ])
 
         return empresaDAO.update(existente)
     }
@@ -199,5 +219,11 @@ class LinketinderService {
             .split(",")
             .collect { it.trim() }
             .findAll { !it.isEmpty() }
+    }
+
+    private static void aplicarCamposObrigatorios(def destino, Map dados, Map<String, String> campos) {
+        campos.each { String propriedade, String rotulo ->
+            if (propriedade == "dataNasc") { destino."$propriedade" = LocalDate.parse(validarObrigatorio(dados."$propriedade", rotulo)) } else { destino."$propriedade" = validarObrigatorio(dados."$propriedade", rotulo) }
+        }
     }
 }

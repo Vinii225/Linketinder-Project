@@ -1,5 +1,14 @@
 plugins {
     id 'groovy'
+    id 'application'
+}
+
+application {
+    mainClass = 'Main'
+}
+
+run {
+    standardInput = System.in
 }
 
 java {
@@ -15,14 +24,25 @@ repositories {
 dependencies {
     implementation 'org.apache.groovy:groovy:5.0.0'
     implementation 'org.postgresql:postgresql:42.7.2'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 sourceSets {
     main {
         groovy {
             srcDirs = ['src/groovy']
-            exclude '**/Testes/**'
-            exclude '**/Testes.groovy'
+            exclude 'test/**'
+        }
+    }
+    test {
+        groovy {
+            srcDirs = ['src/groovy/test']
         }
     }
 }
