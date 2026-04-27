@@ -1,12 +1,13 @@
 package groovy.data
 
+import groovy.data.contracts.EmpresaRepository
 import groovy.model.Empresa
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class EmpresaDAO {
+class EmpresaDAO implements EmpresaRepository {
 
     Empresa create(Empresa empresa) {
         String sql = """

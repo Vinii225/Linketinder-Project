@@ -4,9 +4,9 @@ import groovy.service.LinketinderService
 
 class CandidatoMenu {
     private final LinketinderService service
-    private final MenuIO io
+    private final MenuInput io
 
-    CandidatoMenu(LinketinderService service, MenuIO io) {
+    CandidatoMenu(LinketinderService service, MenuInput io) {
         this.service = service
         this.io = io
     }

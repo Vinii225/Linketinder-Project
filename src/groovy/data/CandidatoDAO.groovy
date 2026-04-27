@@ -1,5 +1,7 @@
 package groovy.data
 
+import groovy.data.contracts.CandidatoRepository
+import groovy.data.contracts.CompetenciaLookup
 import groovy.model.Candidato
 
 import java.sql.Connection
@@ -7,8 +9,16 @@ import java.sql.Date
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CandidatoDAO {
-    private final CompetenciaDAO competenciaDAO = new CompetenciaDAO()
+class CandidatoDAO implements CandidatoRepository {
+    private final CompetenciaLookup competenciaLookup
+
+    CandidatoDAO() {
+        this(new CompetenciaDAO())
+    }
+
+    CandidatoDAO(CompetenciaLookup competenciaLookup) {
+        this.competenciaLookup = competenciaLookup
+    }
 
     Candidato create(Candidato candidato) {
         String sql = """
@@ -180,7 +190,7 @@ class CandidatoDAO {
                 .collect { it.trim() }
                 .unique()
                 .each { nomeCompetencia ->
-                    int idCompetencia = competenciaDAO.findOrCreateByName(nomeCompetencia, connection)
+                    int idCompetencia = competenciaLookup.findOrCreateByName(nomeCompetencia, connection)
                     statement.setInt(1, idCandidato)
                     statement.setInt(2, idCompetencia)
                     statement.addBatch()

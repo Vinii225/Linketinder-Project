@@ -1,12 +1,13 @@
 package groovy.data
 
+import groovy.data.contracts.VagaRepository
 import groovy.model.Vaga
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class VagaDAO {
+class VagaDAO implements VagaRepository {
 
     Vaga create(Vaga vaga) {
         String sql = """

@@ -1,12 +1,14 @@
 package groovy.data
 
+import groovy.data.contracts.CompetenciaRepository
+import groovy.data.contracts.CompetenciaLookup
 import groovy.model.Competencia
 
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 
-class CompetenciaDAO {
+class CompetenciaDAO implements CompetenciaRepository, CompetenciaLookup {
 
     List<Competencia> findAll() {
         String sql = "SELECT id_competencia, nome_competencia FROM competencia ORDER BY id_competencia"

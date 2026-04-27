@@ -2,7 +2,7 @@ package groovy.service.menu
 
 import java.util.Scanner
 
-class MenuIO {
+class MenuIO implements MenuInput {
     private final Scanner scanner
 
     MenuIO(Scanner scanner) {

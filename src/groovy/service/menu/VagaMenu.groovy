@@ -4,9 +4,9 @@ import groovy.service.LinketinderService
 
 class VagaMenu {
     private final LinketinderService service
-    private final MenuIO io
+    private final MenuInput io
 
-    VagaMenu(LinketinderService service, MenuIO io) {
+    VagaMenu(LinketinderService service, MenuInput io) {
         this.service = service
         this.io = io
     }

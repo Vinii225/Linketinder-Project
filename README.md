@@ -65,6 +65,19 @@ groovy src/groovy/Main.groovy
 
 A refatoração do Linketinder focou em melhorar o código existente sem alterar regras de negócio, aplicando princípios de Clean Code como redução de duplicação (DRY), funções menores e maior clareza de nomes. No backend, o service e os DAOs foram reorganizados para reduzir repetição e melhorar legibilidade/manutenção, com validação por testes unitários e build estável via Gradle. O frontend foi mantido, pois já estava modularizado e adequado aos critérios da atividade.
 
+## Refatoração SOLID
+
+- **S (Responsabilidade Única):** o `LinketinderService` deixou de concentrar validação e formatação; essas responsabilidades foram extraídas para `LinketinderValidator` e `LinketinderFormatter`.
+- **O (Aberto/Fechado):** o menu principal (`LinketinderMenu`) passou de `switch` fixo para um registro de ações (`Map<Integer, Closure<Boolean>>`), facilitando adicionar novas opções sem alterar o fluxo central.
+- **L (Substituição de Liskov):** DAOs concretos passaram a implementar contratos de repositório, permitindo substituição por outras implementações (inclusive stubs/mocks) sem quebrar os consumidores.
+- **I (Segregação de Interface):** os contratos foram divididos em interfaces pequenas (`CreateRepository`, `UpdateRepository`, `DeleteRepository`, `FindAllRepository`, `FindByIdRepository`) e compostos por domínio; também foi criada a abstração `MenuInput` para entrada do menu.
+- **D (Inversão de Dependência):** `LinketinderService` passou a depender de abstrações (`CandidatoRepository`, `EmpresaRepository`, `CompetenciaRepository`, `VagaRepository`, `ValidationService`, `EntityFormatter`) e não de classes concretas; `CandidatoDAO` também recebeu `CompetenciaLookup` por injeção.
+
+### Validação
+
+- Execução de testes: `./gradlew clean test`
+- Resultado: build e testes unitários executados com sucesso.
+
 ## Autor
 
 Nome: [preencher seu nome]

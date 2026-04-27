@@ -8,43 +8,76 @@ import groovy.data.CandidatoDAO
 import groovy.data.CompetenciaDAO
 import groovy.data.EmpresaDAO
 import groovy.data.VagaDAO
+import groovy.data.contracts.CandidatoRepository
+import groovy.data.contracts.CompetenciaRepository
+import groovy.data.contracts.EmpresaRepository
+import groovy.data.contracts.VagaRepository
 
 import java.time.LocalDate
 
 class LinketinderService {
-    private final CandidatoDAO candidatoDAO
-    private final EmpresaDAO empresaDAO
-    private final CompetenciaDAO competenciaDAO
-    private final VagaDAO vagaDAO
+    private final CandidatoRepository candidatoDAO
+    private final EmpresaRepository empresaDAO
+    private final CompetenciaRepository competenciaDAO
+    private final VagaRepository vagaDAO
+    private final ValidationService validator
+    private final EntityFormatter formatter
 
     LinketinderService() {
-        this(new CandidatoDAO(), new EmpresaDAO(), new CompetenciaDAO(), new VagaDAO())
+        this(
+            new CandidatoDAO(),
+            new EmpresaDAO(),
+            new CompetenciaDAO(),
+            new VagaDAO(),
+            new LinketinderValidator(),
+            new LinketinderFormatter()
+        )
     }
 
     LinketinderService(
-        CandidatoDAO candidatoDAO,
-        EmpresaDAO empresaDAO,
-        CompetenciaDAO competenciaDAO,
-        VagaDAO vagaDAO
+        CandidatoRepository candidatoDAO,
+        EmpresaRepository empresaDAO,
+        CompetenciaRepository competenciaDAO,
+        VagaRepository vagaDAO
+    ) {
+        this(
+            candidatoDAO,
+            empresaDAO,
+            competenciaDAO,
+            vagaDAO,
+            new LinketinderValidator(),
+            new LinketinderFormatter()
+        )
+    }
+
+    LinketinderService(
+        CandidatoRepository candidatoDAO,
+        EmpresaRepository empresaDAO,
+        CompetenciaRepository competenciaDAO,
+        VagaRepository vagaDAO,
+        ValidationService validator,
+        EntityFormatter formatter
     ) {
         this.candidatoDAO = candidatoDAO
         this.empresaDAO = empresaDAO
         this.competenciaDAO = competenciaDAO
         this.vagaDAO = vagaDAO
+        this.validator = validator
+        this.formatter = formatter
     }
 
     Candidato cadastrarCandidato(Map dados) {
         Candidato candidato = new Candidato(
-            nome: validarObrigatorio(dados.nome, "Nome"),
-            sobrenome: validarObrigatorio(dados.sobrenome, "Sobrenome"),
-            dataNasc: LocalDate.parse(validarObrigatorio(dados.dataNasc, "Data de nascimento")),
-            email: validarObrigatorio(dados.email, "Email"),
-            cpf: validarObrigatorio(dados.cpf, "CPF"),
-            pais: validarObrigatorio(dados.pais, "Pais"),
-            cep: validarObrigatorio(dados.cep, "CEP"),
-            descricaoPessoal: validarObrigatorio(dados.descricaoPessoal, "Descricao pessoal"),
-            senha: validarObrigatorio(dados.senha, "Senha"),
-            competencias: normalizarCompetencias(dados.competencias)
+            nome: validator.validarObrigatorio(dados.nome, "Nome"),
+            sobrenome: validator.validarObrigatorio(dados.sobrenome, "Sobrenome"),
+            dataNasc: LocalDate.parse(validator.validarObrigatorio(dados.dataNasc, "Data de nascimento")),
+            email: validator.validarObrigatorio(dados.email, "Email"),
+            cpf: validator.validarObrigatorio(dados.cpf, "CPF"),
+            pais: validator.validarObrigatorio(dados.pais, "Pais"),
+            cep: validator.validarObrigatorio(dados.cep, "CEP"),
+            descricaoPessoal: validator.validarObrigatorio(dados.descricaoPessoal, "Descricao pessoal"),
+            senha: validator.validarObrigatorio(dados.senha, "Senha"),
+            competencias: validator.normalizarCompetencias(dados.competencias)
         )
         return candidatoDAO.create(candidato)
     }
@@ -55,7 +88,7 @@ class LinketinderService {
             return false
         }
 
-        aplicarCamposObrigatorios(existente, dados, [
+        validator.aplicarCamposObrigatorios(existente, dados, [
             nome: "Nome",
             sobrenome: "Sobrenome",
             dataNasc: "Data de nascimento",
@@ -66,7 +99,7 @@ class LinketinderService {
             descricaoPessoal: "Descricao pessoal",
             senha: "Senha"
         ])
-        existente.competencias = normalizarCompetencias(dados.competencias)
+        existente.competencias = validator.normalizarCompetencias(dados.competencias)
 
         return candidatoDAO.update(existente)
     }
@@ -81,13 +114,13 @@ class LinketinderService {
 
     Empresa cadastrarEmpresa(Map dados) {
         Empresa empresa = new Empresa(
-            nomeEmpresa: validarObrigatorio(dados.nomeEmpresa, "Nome da empresa"),
-            cnpj: validarObrigatorio(dados.cnpj, "CNPJ"),
-            emailCorporativo: validarObrigatorio(dados.emailCorporativo, "Email corporativo"),
-            descricaoEmpresa: validarObrigatorio(dados.descricaoEmpresa, "Descricao da empresa"),
-            pais: validarObrigatorio(dados.pais, "Pais"),
-            cep: validarObrigatorio(dados.cep, "CEP"),
-            senha: validarObrigatorio(dados.senha, "Senha")
+            nomeEmpresa: validator.validarObrigatorio(dados.nomeEmpresa, "Nome da empresa"),
+            cnpj: validator.validarObrigatorio(dados.cnpj, "CNPJ"),
+            emailCorporativo: validator.validarObrigatorio(dados.emailCorporativo, "Email corporativo"),
+            descricaoEmpresa: validator.validarObrigatorio(dados.descricaoEmpresa, "Descricao da empresa"),
+            pais: validator.validarObrigatorio(dados.pais, "Pais"),
+            cep: validator.validarObrigatorio(dados.cep, "CEP"),
+            senha: validator.validarObrigatorio(dados.senha, "Senha")
         )
         return empresaDAO.create(empresa)
     }
@@ -98,7 +131,7 @@ class LinketinderService {
             return false
         }
 
-        aplicarCamposObrigatorios(existente, dados, [
+        validator.aplicarCamposObrigatorios(existente, dados, [
             nomeEmpresa: "Nome da empresa",
             cnpj: "CNPJ",
             emailCorporativo: "Email corporativo",
@@ -121,7 +154,7 @@ class LinketinderService {
 
     Competencia cadastrarCompetencia(Map dados) {
         Competencia competencia = new Competencia(
-            nomeCompetencia: validarObrigatorio(dados.nomeCompetencia, "Nome da competencia")
+            nomeCompetencia: validator.validarObrigatorio(dados.nomeCompetencia, "Nome da competencia")
         )
         return competenciaDAO.create(competencia)
     }
@@ -129,7 +162,7 @@ class LinketinderService {
     boolean atualizarCompetencia(Integer idCompetencia, Map dados) {
         Competencia competencia = new Competencia(
             idCompetencia: idCompetencia,
-            nomeCompetencia: validarObrigatorio(dados.nomeCompetencia, "Nome da competencia")
+            nomeCompetencia: validator.validarObrigatorio(dados.nomeCompetencia, "Nome da competencia")
         )
         return competenciaDAO.update(competencia)
     }
@@ -144,10 +177,10 @@ class LinketinderService {
 
     Vaga cadastrarVaga(Map dados) {
         Vaga vaga = new Vaga(
-            idEmpresa: validarNumero(dados.idEmpresa, "ID da empresa"),
-            nomeVaga: validarObrigatorio(dados.nomeVaga, "Nome da vaga"),
-            descricao: validarObrigatorio(dados.descricao, "Descricao da vaga"),
-            localizacao: validarObrigatorio(dados.localizacao, "Localizacao")
+            idEmpresa: validator.validarNumero(dados.idEmpresa, "ID da empresa"),
+            nomeVaga: validator.validarObrigatorio(dados.nomeVaga, "Nome da vaga"),
+            descricao: validator.validarObrigatorio(dados.descricao, "Descricao da vaga"),
+            localizacao: validator.validarObrigatorio(dados.localizacao, "Localizacao")
         )
         return vagaDAO.create(vaga)
     }
@@ -158,10 +191,10 @@ class LinketinderService {
             return false
         }
 
-        existente.idEmpresa = validarNumero(dados.idEmpresa, "ID da empresa")
-        existente.nomeVaga = validarObrigatorio(dados.nomeVaga, "Nome da vaga")
-        existente.descricao = validarObrigatorio(dados.descricao, "Descricao da vaga")
-        existente.localizacao = validarObrigatorio(dados.localizacao, "Localizacao")
+        existente.idEmpresa = validator.validarNumero(dados.idEmpresa, "ID da empresa")
+        existente.nomeVaga = validator.validarObrigatorio(dados.nomeVaga, "Nome da vaga")
+        existente.descricao = validator.validarObrigatorio(dados.descricao, "Descricao da vaga")
+        existente.localizacao = validator.validarObrigatorio(dados.localizacao, "Localizacao")
         return vagaDAO.update(existente)
     }
 
@@ -174,56 +207,30 @@ class LinketinderService {
     }
 
     String formatarCandidato(Candidato candidato) {
-        String skills = candidato.competencias ? candidato.competencias.join(", ") : "-"
-        return "Candidato(id=${candidato.idCandidato}, nome='${candidato.nome}', email='${candidato.email}', cpf='${candidato.cpf}', competencias=[${skills}])"
+        return formatter.formatarCandidato(candidato)
     }
 
     String formatarEmpresa(Empresa empresa) {
-        return "Empresa(id=${empresa.idEmpresa}, nome='${empresa.nomeEmpresa}', cnpj='${empresa.cnpj}', email='${empresa.emailCorporativo}')"
+        return formatter.formatarEmpresa(empresa)
     }
 
     String formatarCompetencia(Competencia competencia) {
-        return "Competencia(id=${competencia.idCompetencia}, nome='${competencia.nomeCompetencia}')"
+        return formatter.formatarCompetencia(competencia)
     }
 
     String formatarVaga(Vaga vaga) {
-        return "Vaga(id=${vaga.idVaga}, idEmpresa=${vaga.idEmpresa}, nome='${vaga.nomeVaga}', local='${vaga.localizacao}')"
+        return formatter.formatarVaga(vaga)
     }
 
     static String validarObrigatorio(Object valor, String campo) {
-        if (valor == null || valor.toString().trim().isEmpty()) {
-            throw new IllegalArgumentException("${campo} nao pode ser nulo ou vazio.")
-        }
-        return valor.toString().trim()
+        return new LinketinderValidator().validarObrigatorio(valor, campo)
     }
 
     static Integer validarNumero(Object valor, String campo) {
-        String texto = validarObrigatorio(valor, campo)
-        if (!texto.isInteger()) {
-            throw new IllegalArgumentException("${campo} deve ser numerico.")
-        }
-        return texto.toInteger()
+        return new LinketinderValidator().validarNumero(valor, campo)
     }
 
     static List<String> normalizarCompetencias(Object valor) {
-        if (valor == null) {
-            return []
-        }
-
-        if (valor instanceof List) {
-            return valor.collect { it?.toString()?.trim() }
-                .findAll { it }
-        }
-
-        return valor.toString()
-            .split(",")
-            .collect { it.trim() }
-            .findAll { !it.isEmpty() }
-    }
-
-    private static void aplicarCamposObrigatorios(def destino, Map dados, Map<String, String> campos) {
-        campos.each { String propriedade, String rotulo ->
-            if (propriedade == "dataNasc") { destino."$propriedade" = LocalDate.parse(validarObrigatorio(dados."$propriedade", rotulo)) } else { destino."$propriedade" = validarObrigatorio(dados."$propriedade", rotulo) }
-        }
+        return new LinketinderValidator().normalizarCompetencias(valor)
     }
 }
