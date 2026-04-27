@@ -12,8 +12,8 @@ Estrutura simplificada em módulos:
 - `src/Frontend/types.ts`: interfaces e regex compartilhados
 - `src/Frontend/validacao.ts`: funções de validação
 - `src/Frontend/storage.ts`: carregar/salvar em localStorage
-- `src/Frontend/groovy.model.Candidato/Cadastro/cadastro.ts`: lógica de cadastro de candidato
-- `src/Frontend/groovy.model.Empresa/Cadastro/cadastro.ts`: lógica de cadastro de empresa + renderização de vagas e gráfico
+- `src/Frontend/Candidato/Cadastro/cadastro.ts`: lógica de cadastro de candidato
+- `src/Frontend/Empresa/Cadastro/cadastro.ts`: lógica de cadastro de empresa + renderização de vagas e gráfico
 
 ## Compilar Frontend
 
@@ -25,8 +25,8 @@ Gera arquivos em `src/Frontend/dist/`.
 
 ## Atributos Cadastro Frontend
 
-**groovy.model.Candidato**: nome, data_nasc, email, cpf, cep, descricao, competencias
-**groovy.model.Empresa**: nome, cnpj, email, descricao, cep, competencias
+**Candidato**: nome, data_nasc, email, cpf, cep, descricao, competencias
+**Empresa**: nome, cnpj, email, descricao, cep, competencias
 
 Validações de regex em `src/Frontend/types.ts` e `src/Frontend/validacao.ts`.
 
@@ -43,7 +43,7 @@ Camadas:
 
 - `src/groovy/Main.groovy`: ponto de entrada (apenas inicia o menu)
 - `src/groovy/model`: entidades de dominio (`Candidato`, `Empresa`, `Vaga`, `Competencia`)
-- `src/groovy/model/data`: conexao JDBC e DAOs com CRUD
+- `src/groovy/data`: conexao JDBC e DAOs com CRUD
 - `src/groovy/service`: regras de negocio e validacoes
 - `src/groovy/service/menu`: menu principal e submenus por entidade
 
@@ -60,3 +60,11 @@ O arquivo `linketinderSQL.sql` contem o banco com 5 candidatos e 5 empresas pre-
 ./gradlew test
 groovy src/groovy/Main.groovy
 ```
+
+## Resumo da Refatoração
+
+A refatoração do Linketinder focou em melhorar o código existente sem alterar regras de negócio, aplicando princípios de Clean Code como redução de duplicação (DRY), funções menores e maior clareza de nomes. No backend, o service e os DAOs foram reorganizados para reduzir repetição e melhorar legibilidade/manutenção, com validação por testes unitários e build estável via Gradle. O frontend foi mantido, pois já estava modularizado e adequado aos critérios da atividade.
+
+## Autor
+
+Nome: [preencher seu nome]
