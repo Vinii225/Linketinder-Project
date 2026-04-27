@@ -4,6 +4,7 @@ import groovy.model.Vaga
 
 import java.sql.Connection
 import java.sql.PreparedStatement
+import java.sql.ResultSet
 
 class VagaDAO {
 
@@ -14,20 +15,20 @@ class VagaDAO {
             RETURNING id_vaga
         """.stripIndent()
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setInt(1, vaga.idEmpresa)
-        statement.setString(2, vaga.nomeVaga)
-        statement.setString(3, vaga.descricao)
-        statement.setString(4, vaga.localizacao)
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setInt(1, vaga.idEmpresa)
+                statement.setString(2, vaga.nomeVaga)
+                statement.setString(3, vaga.descricao)
+                statement.setString(4, vaga.localizacao)
 
-        def resultSet = statement.executeQuery()
-        resultSet.next()
-        vaga.idVaga = resultSet.getInt("id_vaga")
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    resultSet.next()
+                    vaga.idVaga = resultSet.getInt("id_vaga")
+                }
+            }
+        }
 
-        resultSet.close()
-        statement.close()
-        connection.close()
         return vaga
     }
 
@@ -39,23 +40,17 @@ class VagaDAO {
         """.stripIndent()
 
         List<Vaga> vagas = []
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        def resultSet = statement.executeQuery()
 
-        while (resultSet.next()) {
-            vagas << new Vaga(
-                idVaga: resultSet.getInt("id_vaga"),
-                idEmpresa: resultSet.getInt("id_empresa"),
-                nomeVaga: resultSet.getString("nome_vaga"),
-                descricao: resultSet.getString("descricao"),
-                localizacao: resultSet.getString("localizacao")
-            )
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    while (resultSet.next()) {
+                        vagas << mapVaga(resultSet)
+                    }
+                }
+            }
         }
 
-        resultSet.close()
-        statement.close()
-        connection.close()
         return vagas
     }
 
@@ -66,26 +61,20 @@ class VagaDAO {
             WHERE id_vaga = ?
         """.stripIndent()
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setInt(1, idVaga)
-
-        def resultSet = statement.executeQuery()
         Vaga vaga = null
 
-        if (resultSet.next()) {
-            vaga = new Vaga(
-                idVaga: resultSet.getInt("id_vaga"),
-                idEmpresa: resultSet.getInt("id_empresa"),
-                nomeVaga: resultSet.getString("nome_vaga"),
-                descricao: resultSet.getString("descricao"),
-                localizacao: resultSet.getString("localizacao")
-            )
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setInt(1, idVaga)
+
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    if (resultSet.next()) {
+                        vaga = mapVaga(resultSet)
+                    }
+                }
+            }
         }
 
-        resultSet.close()
-        statement.close()
-        connection.close()
         return vaga
     }
 
@@ -96,30 +85,45 @@ class VagaDAO {
             WHERE id_vaga = ?
         """.stripIndent()
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setInt(1, vaga.idEmpresa)
-        statement.setString(2, vaga.nomeVaga)
-        statement.setString(3, vaga.descricao)
-        statement.setString(4, vaga.localizacao)
-        statement.setInt(5, vaga.idVaga)
+        int updated = 0
 
-        int updated = statement.executeUpdate()
-        statement.close()
-        connection.close()
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setInt(1, vaga.idEmpresa)
+                statement.setString(2, vaga.nomeVaga)
+                statement.setString(3, vaga.descricao)
+                statement.setString(4, vaga.localizacao)
+                statement.setInt(5, vaga.idVaga)
+
+                updated = statement.executeUpdate()
+            }
+        }
+
         return updated > 0
     }
 
     boolean delete(Integer idVaga) {
         String sql = "DELETE FROM vaga WHERE id_vaga = ?"
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setInt(1, idVaga)
+        int deleted = 0
 
-        int deleted = statement.executeUpdate()
-        statement.close()
-        connection.close()
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setInt(1, idVaga)
+                deleted = statement.executeUpdate()
+            }
+        }
+
         return deleted > 0
+    }
+
+    private static Vaga mapVaga(ResultSet resultSet) {
+        return new Vaga(
+            idVaga: resultSet.getInt("id_vaga"),
+            idEmpresa: resultSet.getInt("id_empresa"),
+            nomeVaga: resultSet.getString("nome_vaga"),
+            descricao: resultSet.getString("descricao"),
+            localizacao: resultSet.getString("localizacao")
+        )
     }
 }

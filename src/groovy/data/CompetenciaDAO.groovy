@@ -4,6 +4,7 @@ import groovy.model.Competencia
 
 import java.sql.Connection
 import java.sql.PreparedStatement
+import java.sql.ResultSet
 
 class CompetenciaDAO {
 
@@ -11,93 +12,99 @@ class CompetenciaDAO {
         String sql = "SELECT id_competencia, nome_competencia FROM competencia ORDER BY id_competencia"
         List<Competencia> competencias = []
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        def resultSet = statement.executeQuery()
-
-        while (resultSet.next()) {
-            competencias << new Competencia(
-                idCompetencia: resultSet.getInt("id_competencia"),
-                nomeCompetencia: resultSet.getString("nome_competencia")
-            )
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    while (resultSet.next()) {
+                        competencias << mapCompetencia(resultSet)
+                    }
+                }
+            }
         }
 
-        resultSet.close()
-        statement.close()
-        connection.close()
         return competencias
     }
 
     Competencia create(Competencia competencia) {
         String sql = "INSERT INTO competencia (nome_competencia) VALUES (?) RETURNING id_competencia"
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setString(1, competencia.nomeCompetencia)
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setString(1, competencia.nomeCompetencia)
 
-        def resultSet = statement.executeQuery()
-        if (resultSet.next()) {
-            competencia.idCompetencia = resultSet.getInt("id_competencia")
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    if (resultSet.next()) {
+                        competencia.idCompetencia = resultSet.getInt("id_competencia")
+                    }
+                }
+            }
         }
 
-        resultSet.close()
-        statement.close()
-        connection.close()
         return competencia
     }
 
     boolean update(Competencia competencia) {
         String sql = "UPDATE competencia SET nome_competencia = ? WHERE id_competencia = ?"
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setString(1, competencia.nomeCompetencia)
-        statement.setInt(2, competencia.idCompetencia)
+        int updated = 0
 
-        int updated = statement.executeUpdate()
-        statement.close()
-        connection.close()
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setString(1, competencia.nomeCompetencia)
+                statement.setInt(2, competencia.idCompetencia)
+                updated = statement.executeUpdate()
+            }
+        }
+
         return updated > 0
     }
 
     boolean delete(Integer idCompetencia) {
         String sql = "DELETE FROM competencia WHERE id_competencia = ?"
 
-        Connection connection = DatabaseConnection.getConnection()
-        PreparedStatement statement = connection.prepareStatement(sql)
-        statement.setInt(1, idCompetencia)
+        int deleted = 0
 
-        int deleted = statement.executeUpdate()
-        statement.close()
-        connection.close()
+        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setInt(1, idCompetencia)
+                deleted = statement.executeUpdate()
+            }
+        }
+
         return deleted > 0
     }
 
     Integer findOrCreateByName(String nomeCompetencia, Connection connection) {
         String findSql = "SELECT id_competencia FROM competencia WHERE LOWER(nome_competencia) = LOWER(?)"
-        PreparedStatement findStatement = connection.prepareStatement(findSql)
-        findStatement.setString(1, nomeCompetencia)
-        def resultSet = findStatement.executeQuery()
+        connection.prepareStatement(findSql).withCloseable { PreparedStatement findStatement ->
+            findStatement.setString(1, nomeCompetencia)
 
-        if (resultSet.next()) {
-            int existingId = resultSet.getInt("id_competencia")
-            resultSet.close()
-            findStatement.close()
-            return existingId
+            findStatement.executeQuery().withCloseable { ResultSet resultSet ->
+                if (resultSet.next()) {
+                    return resultSet.getInt("id_competencia")
+                }
+            }
         }
 
-        resultSet.close()
-        findStatement.close()
-
         String createSql = "INSERT INTO competencia (nome_competencia) VALUES (?) RETURNING id_competencia"
-        PreparedStatement createStatement = connection.prepareStatement(createSql)
-        createStatement.setString(1, nomeCompetencia)
-        def createResult = createStatement.executeQuery()
+        int newId = 0
 
-        createResult.next()
-        int newId = createResult.getInt("id_competencia")
-        createResult.close()
-        createStatement.close()
+        connection.prepareStatement(createSql).withCloseable { PreparedStatement createStatement ->
+            createStatement.setString(1, nomeCompetencia)
+
+            createStatement.executeQuery().withCloseable { ResultSet createResult ->
+                createResult.next()
+                newId = createResult.getInt("id_competencia")
+            }
+        }
+
         return newId
+    }
+
+    private static Competencia mapCompetencia(ResultSet resultSet) {
+        return new Competencia(
+            idCompetencia: resultSet.getInt("id_competencia"),
+            nomeCompetencia: resultSet.getString("nome_competencia")
+        )
     }
 }
