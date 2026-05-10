@@ -1,6 +1,11 @@
 package groovy.data
 
 import groovy.data.contracts.EmpresaRepository
+import groovy.data.executor.DatabaseExecutor
+import groovy.data.strategy.SelectListStrategy
+import groovy.data.strategy.SelectStrategy
+import groovy.data.strategy.TransactionStrategy
+import groovy.data.strategy.UpdateStrategy
 import groovy.model.Empresa
 
 import java.sql.Connection
@@ -16,7 +21,9 @@ class EmpresaDAO implements EmpresaRepository {
             RETURNING id_empresa
         """.stripIndent()
 
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+        def strategy = new TransactionStrategy<Empresa>({ Connection connection ->
+            Integer idEmpresa = null
+            
             connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
                 statement.setString(1, empresa.nomeEmpresa)
                 statement.setString(2, empresa.cnpj)
@@ -28,12 +35,15 @@ class EmpresaDAO implements EmpresaRepository {
 
                 statement.executeQuery().withCloseable { ResultSet resultSet ->
                     resultSet.next()
-                    empresa.idEmpresa = resultSet.getInt("id_empresa")
+                    idEmpresa = resultSet.getInt("id_empresa")
                 }
             }
-        }
 
-        return empresa
+            empresa.idEmpresa = idEmpresa
+            return empresa
+        })
+
+        return DatabaseExecutor.execute(strategy, sql, {})
     }
 
     List<Empresa> findAll() {
@@ -43,19 +53,11 @@ class EmpresaDAO implements EmpresaRepository {
             ORDER BY id_empresa
         """.stripIndent()
 
-        List<Empresa> empresas = []
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    while (resultSet.next()) {
-                        empresas << mapEmpresa(resultSet)
-                    }
-                }
-            }
-        }
-
-        return empresas
+        def strategy = new SelectListStrategy<Empresa>({ ResultSet rs -> mapEmpresa(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            // Sem parâmetros
+        })
     }
 
     Empresa findById(Integer idEmpresa) {
@@ -65,21 +67,11 @@ class EmpresaDAO implements EmpresaRepository {
             WHERE id_empresa = ?
         """.stripIndent()
 
-        Empresa empresa = null
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idEmpresa)
-
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    if (resultSet.next()) {
-                        empresa = mapEmpresa(resultSet)
-                    }
-                }
-            }
-        }
-
-        return empresa
+        def strategy = new SelectStrategy<Empresa>({ ResultSet rs -> mapEmpresa(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idEmpresa)
+        })
     }
 
     boolean update(Empresa empresa) {
@@ -89,22 +81,18 @@ class EmpresaDAO implements EmpresaRepository {
             WHERE id_empresa = ?
         """.stripIndent()
 
-        int updated = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setString(1, empresa.nomeEmpresa)
-                statement.setString(2, empresa.cnpj)
-                statement.setString(3, empresa.emailCorporativo)
-                statement.setString(4, empresa.descricaoEmpresa)
-                statement.setString(5, empresa.pais)
-                statement.setString(6, empresa.cep)
-                statement.setString(7, empresa.senha)
-                statement.setInt(8, empresa.idEmpresa)
-
-                updated = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int updated = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setString(1, empresa.nomeEmpresa)
+            statement.setString(2, empresa.cnpj)
+            statement.setString(3, empresa.emailCorporativo)
+            statement.setString(4, empresa.descricaoEmpresa)
+            statement.setString(5, empresa.pais)
+            statement.setString(6, empresa.cep)
+            statement.setString(7, empresa.senha)
+            statement.setInt(8, empresa.idEmpresa)
+        })
 
         return updated > 0
     }
@@ -112,14 +100,11 @@ class EmpresaDAO implements EmpresaRepository {
     boolean delete(Integer idEmpresa) {
         String sql = "DELETE FROM empresa WHERE id_empresa = ?"
 
-        int deleted = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idEmpresa)
-                deleted = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int deleted = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idEmpresa)
+        })
 
         return deleted > 0
     }

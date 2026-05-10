@@ -2,6 +2,11 @@ package groovy.data
 
 import groovy.data.contracts.CandidatoRepository
 import groovy.data.contracts.CompetenciaLookup
+import groovy.data.executor.DatabaseExecutor
+import groovy.data.strategy.SelectListStrategy
+import groovy.data.strategy.SelectStrategy
+import groovy.data.strategy.TransactionStrategy
+import groovy.data.strategy.UpdateStrategy
 import groovy.model.Candidato
 
 import java.sql.Connection
@@ -27,36 +32,33 @@ class CandidatoDAO implements CandidatoRepository {
             RETURNING id_candidato
         """.stripIndent()
 
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.setAutoCommit(false)
+        def strategy = new TransactionStrategy<Candidato>({ Connection connection ->
+            Integer idCandidato = null
+            
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setString(1, candidato.nome)
+                statement.setString(2, candidato.sobrenome)
+                statement.setDate(3, Date.valueOf(candidato.dataNasc))
+                statement.setString(4, candidato.email)
+                statement.setString(5, candidato.cpf)
+                statement.setString(6, candidato.pais)
+                statement.setString(7, candidato.cep)
+                statement.setString(8, candidato.descricaoPessoal)
+                statement.setString(9, candidato.senha)
 
-            try {
-                connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                    statement.setString(1, candidato.nome)
-                    statement.setString(2, candidato.sobrenome)
-                    statement.setDate(3, Date.valueOf(candidato.dataNasc))
-                    statement.setString(4, candidato.email)
-                    statement.setString(5, candidato.cpf)
-                    statement.setString(6, candidato.pais)
-                    statement.setString(7, candidato.cep)
-                    statement.setString(8, candidato.descricaoPessoal)
-                    statement.setString(9, candidato.senha)
-
-                    statement.executeQuery().withCloseable { ResultSet resultSet ->
-                        resultSet.next()
-                        candidato.idCandidato = resultSet.getInt("id_candidato")
-                    }
+                statement.executeQuery().withCloseable { ResultSet resultSet ->
+                    resultSet.next()
+                    idCandidato = resultSet.getInt("id_candidato")
                 }
-
-                saveCompetencias(connection, candidato.idCandidato, candidato.competencias)
-
-                connection.commit()
-                return candidato
-            } catch (Exception exception) {
-                connection.rollback()
-                throw exception
             }
-        }
+
+            candidato.idCandidato = idCandidato
+            saveCompetencias(connection, candidato.idCandidato, candidato.competencias)
+            
+            return candidato
+        })
+
+        return DatabaseExecutor.execute(strategy, sql, {})
     }
 
     List<Candidato> findAll() {
@@ -70,19 +72,11 @@ class CandidatoDAO implements CandidatoRepository {
             ORDER BY c.id_candidato
         """.stripIndent()
 
-        List<Candidato> candidatos = []
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    while (resultSet.next()) {
-                        candidatos << mapCandidato(resultSet)
-                    }
-                }
-            }
-        }
-
-        return candidatos
+        def strategy = new SelectListStrategy<Candidato>({ ResultSet rs -> mapCandidato(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            // Sem parâmetros
+        })
     }
 
     Candidato findById(Integer idCandidato) {
@@ -96,21 +90,11 @@ class CandidatoDAO implements CandidatoRepository {
             GROUP BY c.id_candidato
         """.stripIndent()
 
-        Candidato candidato = null
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idCandidato)
-
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    if (resultSet.next()) {
-                        candidato = mapCandidato(resultSet)
-                    }
-                }
-            }
-        }
-
-        return candidato
+        def strategy = new SelectStrategy<Candidato>({ ResultSet rs -> mapCandidato(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idCandidato)
+        })
     }
 
     boolean update(Candidato candidato) {
@@ -120,50 +104,41 @@ class CandidatoDAO implements CandidatoRepository {
             WHERE id_candidato = ?
         """.stripIndent()
 
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.setAutoCommit(false)
+        def strategy = new TransactionStrategy<Boolean>({ Connection connection ->
+            int updated = 0
+            
+            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
+                statement.setString(1, candidato.nome)
+                statement.setString(2, candidato.sobrenome)
+                statement.setDate(3, Date.valueOf(candidato.dataNasc))
+                statement.setString(4, candidato.email)
+                statement.setString(5, candidato.cpf)
+                statement.setString(6, candidato.pais)
+                statement.setString(7, candidato.cep)
+                statement.setString(8, candidato.descricaoPessoal)
+                statement.setString(9, candidato.senha)
+                statement.setInt(10, candidato.idCandidato)
 
-            try {
-                int updated = 0
-
-                connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                    statement.setString(1, candidato.nome)
-                    statement.setString(2, candidato.sobrenome)
-                    statement.setDate(3, Date.valueOf(candidato.dataNasc))
-                    statement.setString(4, candidato.email)
-                    statement.setString(5, candidato.cpf)
-                    statement.setString(6, candidato.pais)
-                    statement.setString(7, candidato.cep)
-                    statement.setString(8, candidato.descricaoPessoal)
-                    statement.setString(9, candidato.senha)
-                    statement.setInt(10, candidato.idCandidato)
-
-                    updated = statement.executeUpdate()
-                }
-
-                clearCompetencias(connection, candidato.idCandidato)
-                saveCompetencias(connection, candidato.idCandidato, candidato.competencias)
-
-                connection.commit()
-                return updated > 0
-            } catch (Exception exception) {
-                connection.rollback()
-                throw exception
+                updated = statement.executeUpdate()
             }
-        }
+
+            clearCompetencias(connection, candidato.idCandidato)
+            saveCompetencias(connection, candidato.idCandidato, candidato.competencias)
+
+            return updated > 0
+        })
+
+        return DatabaseExecutor.execute(strategy, sql, {})
     }
 
     boolean delete(Integer idCandidato) {
         String sql = "DELETE FROM candidato WHERE id_candidato = ?"
 
-        int deleted = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idCandidato)
-                deleted = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int deleted = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idCandidato)
+        })
 
         return deleted > 0
     }

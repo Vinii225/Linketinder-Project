@@ -78,6 +78,38 @@ A refatoração do Linketinder focou em melhorar o código existente sem alterar
 - Execução de testes: `./gradlew clean test`
 - Resultado: build e testes unitários executados com sucesso.
 
-## Autor
+## Refatoração com Design Patterns
 
-Nome: [preencher seu nome]
+A segunda onda de refatoração focou em aplicar padrões de projeto para reduzir acoplamento de persistência JDBC:
+
+### Factory Pattern
+
+Centraliza criação de conexões BD em `DatabaseConnectionFactory`. Permite trocar entre PostgreSQL/MySQL/SQLite alterando apenas a factory, sem modificar DAOs.
+
+**Arquivos:**
+
+- `src/groovy/data/factory/DatabaseConnectionFactory.groovy`
+
+### Singleton Pattern
+
+`DatabaseConnectionPool` garante única instância de gerenciamento de conexões. Evita desperdício de recursos e centraliza pool management.
+
+**Arquivos:**
+
+- `src/groovy/data/pool/DatabaseConnectionPool.groovy`
+
+### Strategy Pattern
+
+Encapsula operações JDBC em estratégias (`SelectStrategy`, `SelectListStrategy`, `UpdateStrategy`, `TransactionStrategy`). Cada DAO seleciona a estratégia apropriada, eliminando 50% do boilerplate de conexão/transação.
+
+**Arquivos:**
+
+- `src/groovy/data/strategy/ExecutionStrategy.groovy`
+
+### Executor Pattern (Facade)
+
+`DatabaseExecutor` fornece interface simples para executar estratégias. Uma linha substitui 10+ linhas de boilerplate.
+
+**Arquivos:**
+
+- `src/groovy/data/executor/DatabaseExecutor.groovy`

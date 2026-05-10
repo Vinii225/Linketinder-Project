@@ -2,6 +2,10 @@ package groovy.data
 
 import groovy.data.contracts.CompetenciaRepository
 import groovy.data.contracts.CompetenciaLookup
+import groovy.data.executor.DatabaseExecutor
+import groovy.data.strategy.SelectListStrategy
+import groovy.data.strategy.TransactionStrategy
+import groovy.data.strategy.UpdateStrategy
 import groovy.model.Competencia
 
 import java.sql.Connection
@@ -12,51 +16,46 @@ class CompetenciaDAO implements CompetenciaRepository, CompetenciaLookup {
 
     List<Competencia> findAll() {
         String sql = "SELECT id_competencia, nome_competencia FROM competencia ORDER BY id_competencia"
-        List<Competencia> competencias = []
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    while (resultSet.next()) {
-                        competencias << mapCompetencia(resultSet)
-                    }
-                }
-            }
-        }
-
-        return competencias
+        
+        def strategy = new SelectListStrategy<Competencia>({ ResultSet rs -> mapCompetencia(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            // Sem parâmetros
+        })
     }
 
     Competencia create(Competencia competencia) {
         String sql = "INSERT INTO competencia (nome_competencia) VALUES (?) RETURNING id_competencia"
 
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+        def strategy = new TransactionStrategy<Competencia>({ Connection connection ->
+            Integer idCompetencia = null
+            
             connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
                 statement.setString(1, competencia.nomeCompetencia)
 
                 statement.executeQuery().withCloseable { ResultSet resultSet ->
                     if (resultSet.next()) {
-                        competencia.idCompetencia = resultSet.getInt("id_competencia")
+                        idCompetencia = resultSet.getInt("id_competencia")
                     }
                 }
             }
-        }
+            
+            competencia.idCompetencia = idCompetencia
+            return competencia
+        })
 
-        return competencia
+        return DatabaseExecutor.execute(strategy, sql, {})
     }
 
     boolean update(Competencia competencia) {
         String sql = "UPDATE competencia SET nome_competencia = ? WHERE id_competencia = ?"
 
-        int updated = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setString(1, competencia.nomeCompetencia)
-                statement.setInt(2, competencia.idCompetencia)
-                updated = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int updated = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setString(1, competencia.nomeCompetencia)
+            statement.setInt(2, competencia.idCompetencia)
+        })
 
         return updated > 0
     }
@@ -64,14 +63,11 @@ class CompetenciaDAO implements CompetenciaRepository, CompetenciaLookup {
     boolean delete(Integer idCompetencia) {
         String sql = "DELETE FROM competencia WHERE id_competencia = ?"
 
-        int deleted = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idCompetencia)
-                deleted = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int deleted = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idCompetencia)
+        })
 
         return deleted > 0
     }

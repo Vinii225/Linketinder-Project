@@ -1,6 +1,11 @@
 package groovy.data
 
 import groovy.data.contracts.VagaRepository
+import groovy.data.executor.DatabaseExecutor
+import groovy.data.strategy.SelectListStrategy
+import groovy.data.strategy.SelectStrategy
+import groovy.data.strategy.TransactionStrategy
+import groovy.data.strategy.UpdateStrategy
 import groovy.model.Vaga
 
 import java.sql.Connection
@@ -16,7 +21,9 @@ class VagaDAO implements VagaRepository {
             RETURNING id_vaga
         """.stripIndent()
 
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
+        def strategy = new TransactionStrategy<Vaga>({ Connection connection ->
+            Integer idVaga = null
+            
             connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
                 statement.setInt(1, vaga.idEmpresa)
                 statement.setString(2, vaga.nomeVaga)
@@ -25,12 +32,15 @@ class VagaDAO implements VagaRepository {
 
                 statement.executeQuery().withCloseable { ResultSet resultSet ->
                     resultSet.next()
-                    vaga.idVaga = resultSet.getInt("id_vaga")
+                    idVaga = resultSet.getInt("id_vaga")
                 }
             }
-        }
+            
+            vaga.idVaga = idVaga
+            return vaga
+        })
 
-        return vaga
+        return DatabaseExecutor.execute(strategy, sql, {})
     }
 
     List<Vaga> findAll() {
@@ -40,19 +50,11 @@ class VagaDAO implements VagaRepository {
             ORDER BY id_vaga
         """.stripIndent()
 
-        List<Vaga> vagas = []
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    while (resultSet.next()) {
-                        vagas << mapVaga(resultSet)
-                    }
-                }
-            }
-        }
-
-        return vagas
+        def strategy = new SelectListStrategy<Vaga>({ ResultSet rs -> mapVaga(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            // Sem parâmetros
+        })
     }
 
     Vaga findById(Integer idVaga) {
@@ -62,21 +64,11 @@ class VagaDAO implements VagaRepository {
             WHERE id_vaga = ?
         """.stripIndent()
 
-        Vaga vaga = null
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idVaga)
-
-                statement.executeQuery().withCloseable { ResultSet resultSet ->
-                    if (resultSet.next()) {
-                        vaga = mapVaga(resultSet)
-                    }
-                }
-            }
-        }
-
-        return vaga
+        def strategy = new SelectStrategy<Vaga>({ ResultSet rs -> mapVaga(rs) })
+        
+        return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idVaga)
+        })
     }
 
     boolean update(Vaga vaga) {
@@ -86,19 +78,15 @@ class VagaDAO implements VagaRepository {
             WHERE id_vaga = ?
         """.stripIndent()
 
-        int updated = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, vaga.idEmpresa)
-                statement.setString(2, vaga.nomeVaga)
-                statement.setString(3, vaga.descricao)
-                statement.setString(4, vaga.localizacao)
-                statement.setInt(5, vaga.idVaga)
-
-                updated = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int updated = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, vaga.idEmpresa)
+            statement.setString(2, vaga.nomeVaga)
+            statement.setString(3, vaga.descricao)
+            statement.setString(4, vaga.localizacao)
+            statement.setInt(5, vaga.idVaga)
+        })
 
         return updated > 0
     }
@@ -106,14 +94,11 @@ class VagaDAO implements VagaRepository {
     boolean delete(Integer idVaga) {
         String sql = "DELETE FROM vaga WHERE id_vaga = ?"
 
-        int deleted = 0
-
-        DatabaseConnection.getConnection().withCloseable { Connection connection ->
-            connection.prepareStatement(sql).withCloseable { PreparedStatement statement ->
-                statement.setInt(1, idVaga)
-                deleted = statement.executeUpdate()
-            }
-        }
+        def strategy = new UpdateStrategy()
+        
+        int deleted = DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
+            statement.setInt(1, idVaga)
+        })
 
         return deleted > 0
     }
