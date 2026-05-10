@@ -113,3 +113,14 @@ Encapsula operações JDBC em estratégias (`SelectStrategy`, `SelectListStrateg
 **Arquivos:**
 
 - `src/groovy/data/executor/DatabaseExecutor.groovy`
+
+## Refatoração MVC
+
+Foi aplicada uma refatoração leve para organizar o backend segundo o padrão MVC, mantendo o código enxuto:
+
+- Foram criados controladores mínimos: `src/groovy/controller/CandidatoController.groovy` e `src/groovy/controller/EmpresaController.groovy`.
+- As views (menus em `src/groovy/service/menu/`) agora delegam aos controllers, que encaminham chamadas ao `LinketinderService`.
+- A camada de `Service` e os `DAO`s permanecem responsáveis pelo Model (regras de negócio e persistência).
+- Build e testes foram executados após a mudança: `./gradlew clean build` e `./gradlew test` — ambos com sucesso.
+
+Essa separação facilita migrar a camada de controllers para frameworks web no futuro sem alterar a lógica de negócio e reduz o acoplamento entre UI e persistência.

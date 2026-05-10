@@ -1,13 +1,14 @@
 package groovy.service.menu
 
+import groovy.controller.CandidatoController
 import groovy.service.LinketinderService
 
 class CandidatoMenu {
-    private final LinketinderService service
+    private final CandidatoController controller
     private final MenuInput io
 
     CandidatoMenu(LinketinderService service, MenuInput io) {
-        this.service = service
+        this.controller = new CandidatoController(service)
         this.io = io
     }
 
@@ -21,7 +22,7 @@ class CandidatoMenu {
         int opcao = io.lerOpcao()
         switch (opcao) {
             case 1:
-                def candidato = service.cadastrarCandidato([
+                def candidato = controller.create([
                     nome: io.lerTexto("Nome"),
                     sobrenome: io.lerTexto("Sobrenome"),
                     dataNasc: io.lerTexto("Data de nascimento (AAAA-MM-DD)"),
@@ -36,11 +37,11 @@ class CandidatoMenu {
                 println "Candidato cadastrado com ID ${candidato.idCandidato}."
                 break
             case 2:
-                service.listarCandidatos().each { println service.formatarCandidato(it) }
+                controller.list().each { println controller.format(it) }
                 break
             case 3:
                 Integer id = io.lerOpcao("ID do candidato")
-                boolean atualizado = service.atualizarCandidato(id, [
+                boolean atualizado = controller.update(id, [
                     nome: io.lerTexto("Nome"),
                     sobrenome: io.lerTexto("Sobrenome"),
                     dataNasc: io.lerTexto("Data de nascimento (AAAA-MM-DD)"),
@@ -56,7 +57,7 @@ class CandidatoMenu {
                 break
             case 4:
                 Integer idDelete = io.lerOpcao("ID do candidato")
-                boolean deletado = service.deletarCandidato(idDelete)
+                boolean deletado = controller.delete(idDelete)
                 println deletado ? "Candidato deletado." : "Candidato nao encontrado."
                 break
             default:
