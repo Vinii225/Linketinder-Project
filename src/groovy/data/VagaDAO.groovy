@@ -53,7 +53,6 @@ class VagaDAO implements VagaRepository {
         def strategy = new SelectListStrategy<Vaga>({ ResultSet rs -> mapVaga(rs) })
         
         return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
-            // Sem parâmetros
         })
     }
 

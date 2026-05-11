@@ -61,6 +61,90 @@ O arquivo `linketinderSQL.sql` contem o banco com 5 candidatos e 5 empresas pre-
 groovy src/groovy/Main.groovy
 ```
 
+## API REST — rotas obrigatorias
+
+Para atender o projeto de REST/RESTful sem usar frameworks (Spring/Grails/Micronaut), foi criada uma API bem simples usando apenas:
+
+- `com.sun.net.httpserver.HttpServer` (servidor HTTP do proprio JDK)
+- `groovy.json.JsonSlurper/JsonOutput` (parse/serialize JSON)
+- Controllers + `LinketinderService` + DAOs existentes (persistencia JDBC no Postgres)
+
+### Como rodar
+
+1) Suba/configure o Postgres (o script esta em `linketinderSQL.sql`).
+
+2) Configure as variaveis de ambiente do banco (opcional; tem defaults):
+
+- `LINKETINDER_DB_URL` (default: `jdbc:postgresql://localhost:5432/linketinder`)
+- `LINKETINDER_DB_USER` (default: `postgres`)
+- `LINKETINDER_DB_PASSWORD` (default: `7127`)
+
+3) Rode a API:
+
+```bash
+./gradlew runApi
+```
+
+Ela sobe em `http://localhost:8080` (ou na porta definida por `PORT`).
+
+### Rotas implementadas (3)
+
+- `POST /candidatos` (cadastro de candidato) -> `201` (Created)
+- `POST /empresas` (cadastro de empresa) -> `201` (Created)
+- `POST /vagas` (insercao de vaga) -> `201` (Created)
+
+Observacao: por simplicidade, as respostas nao retornam o campo `senha`.
+
+### Exemplos (curl)
+
+Criar candidato:
+
+```bash
+curl -i -X POST http://localhost:8080/candidatos \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"nome": "Sandubinha",
+		"sobrenome": "Mirabolante",
+		"dataNasc": "2000-01-01",
+		"email": "sandubinha@email.com",
+		"cpf": "12345678900",
+		"pais": "Brasil",
+		"cep": "01001000",
+		"descricaoPessoal": "Gosto de sanduiches.",
+		"senha": "123",
+		"competencias": ["Java", "SQL"]
+	}'
+```
+
+Criar empresa:
+
+```bash
+curl -i -X POST http://localhost:8080/empresas \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"nomeEmpresa": "ACME",
+		"cnpj": "12345678000199",
+		"emailCorporativo": "contato@acme.com",
+		"descricaoEmpresa": "Empresa de exemplo",
+		"pais": "Brasil",
+		"cep": "01001000",
+		"senha": "123"
+	}'
+```
+
+Criar vaga:
+
+```bash
+curl -i -X POST http://localhost:8080/vagas \
+	-H 'Content-Type: application/json' \
+	-d '{
+		"idEmpresa": 1,
+		"nomeVaga": "Dev Jr",
+		"descricao": "Vaga de exemplo",
+		"localizacao": "Remoto"
+	}'
+```
+
 ## Resumo da Refatoração
 
 A refatoração do Linketinder focou em melhorar o código existente sem alterar regras de negócio, aplicando princípios de Clean Code como redução de duplicação (DRY), funções menores e maior clareza de nomes. No backend, o service e os DAOs foram reorganizados para reduzir repetição e melhorar legibilidade/manutenção, com validação por testes unitários e build estável via Gradle. O frontend foi mantido, pois já estava modularizado e adequado aos critérios da atividade.

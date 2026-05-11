@@ -56,7 +56,6 @@ class EmpresaDAO implements EmpresaRepository {
         def strategy = new SelectListStrategy<Empresa>({ ResultSet rs -> mapEmpresa(rs) })
         
         return DatabaseExecutor.execute(strategy, sql, { PreparedStatement statement ->
-            // Sem parâmetros
         })
     }
 

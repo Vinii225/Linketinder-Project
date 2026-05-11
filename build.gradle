@@ -7,6 +7,13 @@ application {
     mainClass = 'Main'
 }
 
+tasks.register('runApi', JavaExec) {
+    group = 'application'
+    description = 'Inicia API REST'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'groovy.api.ApiMain'
+}
+
 run {
     standardInput = System.in
 }
@@ -23,6 +30,7 @@ repositories {
 
 dependencies {
     implementation 'org.apache.groovy:groovy:5.0.0'
+    implementation 'org.apache.groovy:groovy-json:5.0.0'
     implementation 'org.postgresql:postgresql:42.7.2'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
